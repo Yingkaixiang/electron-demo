@@ -1,6 +1,11 @@
 // Modules to control application life and create native browser window
-const {app, BrowserWindow} = require('electron')
+const { app, BrowserWindow, ipcMain, Menu } = require('electron')
 const path = require('path')
+const url = require('url')
+
+const ipc = require('./main-process/ipc');
+
+const env = process.env.NODE_ENV;
 
 function createWindow () {
   // Create the browser window.
@@ -8,15 +13,36 @@ function createWindow () {
     width: 800,
     height: 600,
     webPreferences: {
+      nodeIntegration: true,
       preload: path.join(__dirname, 'preload.js')
     }
   })
 
-  // and load the index.html of the app.
-  mainWindow.loadFile('index.html')
+  if (env === 'production') {
+    const _url = url.format({
+      pathname: path.join(__dirname, './my-app/build/index.html'),
+      protocol: 'file:',
+      slashes: true
+    })
+  
+    mainWindow.loadURL(_url);
+  } else {
+    mainWindow.loadURL('http://localhost:3000/')
+    mainWindow.webContents.openDevTools();
+  }
 
-  // Open the DevTools.
-  // mainWindow.webContents.openDevTools()
+  ipcMain.on('set-progress-bar', (event) => {
+    let progress = 0;
+
+    const timer = setInterval(() => {
+      if (progress >= 1) {
+        clearInterval(timer);
+        event.sender.send('set-progress-bar-done', 'success');
+      }
+      progress += 0.1;
+      mainWindow.setProgressBar(progress)
+    }, 1000);
+  });
 }
 
 // This method will be called when Electron has finished
@@ -36,6 +62,3 @@ app.on('activate', function () {
   // dock icon is clicked and there are no other windows open.
   if (BrowserWindow.getAllWindows().length === 0) createWindow()
 })
-
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.

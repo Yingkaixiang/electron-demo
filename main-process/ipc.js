@@ -13,3 +13,10 @@ ipcMain.on('add-recent-document', (event) => {
   app.addRecentDocument('/Users/yingkaixiang/Repo/electron-quick-start/index.html');
   event.returnValue = 'success';
 });
+
+ipcMain.on('ondragstart', (event, filePath) => {
+  event.sender.startDrag({
+    file: filePath,
+    icon: './main-process/img.png',
+  })
+});

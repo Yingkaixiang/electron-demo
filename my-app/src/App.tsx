@@ -7,6 +7,8 @@ import Communication from './Communication/';
 import Notification from './Notification/';
 import RecentFile from './RecentFile/';
 import Progress from './Progress/';
+import Online from './Online/';
+import DragAndDrop from './DragAndDrop/';
 
 function App() {
   return (
@@ -17,6 +19,8 @@ function App() {
         <Notification />
         <RecentFile />
         <Progress />
+        <Online />
+        <DragAndDrop />
       </header>
     </div>
   );
